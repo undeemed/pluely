@@ -72,7 +72,7 @@ export const Completion = () => {
           <PopoverTrigger asChild>
             <div className="relative">
               <Input
-                placeholder="Enter your prompt"
+                placeholder="Ask me anything..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
