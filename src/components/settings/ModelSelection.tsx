@@ -67,7 +67,7 @@ export const ModelSelection = ({
           onValueChange={onModelChange}
           disabled={disabled || isLoadingModels}
         >
-          <SelectTrigger className="w-full h-11 border-2 focus:border-primary/50 transition-colors">
+          <SelectTrigger className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors">
             <SelectValue placeholder="Select your preferred model">
               {selectedModel && <span>{selectedModel}</span>}
             </SelectValue>
@@ -93,7 +93,7 @@ export const ModelSelection = ({
             value={customModel}
             onChange={(e) => onCustomModelChange(e.target.value)}
             disabled={disabled || isLoadingModels}
-            className="w-full h-11 border-2 focus:border-primary/50 transition-colors"
+            className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors"
           />
           <p className="text-xs text-muted-foreground/70">
             💡 Tip: Check your provider's documentation for best available

@@ -21,8 +21,8 @@ export const Completion = () => {
     error,
     attachedFiles,
     addFile,
-    removeFile,
-    clearFiles,
+    // removeFile,
+    // clearFiles,
     submit,
     cancel,
     reset,
@@ -152,7 +152,7 @@ export const Completion = () => {
 
         {/* File count badge */}
         {attachedFiles.length > 0 && (
-          <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-5 w-5 flex border border-white/50 items-center justify-center text-xs font-medium">
+          <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-5 w-5 flex border border-primary-foreground/50 items-center justify-center text-xs font-medium">
             {attachedFiles.length}
           </div>
         )}

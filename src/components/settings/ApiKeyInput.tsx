@@ -43,7 +43,7 @@ export const ApiKeyInput = ({
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={onKeyPress}
           disabled={isSubmitted || disabled}
-          className="flex-1 h-11 border-2 focus:border-primary/50 transition-colors"
+          className="flex-1 h-11 border-1 border-input/50 focus:border-primary/50 transition-colors"
         />
         {!isSubmitted ? (
           <Button

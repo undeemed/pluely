@@ -20,7 +20,7 @@ export const SystemPrompt = ({ value, onChange }: SystemPromptProps) => {
         placeholder="You are a helpful AI assistant. Be concise, accurate, and friendly in your responses..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="min-h-[100px] resize-none border-2 focus:border-primary/50 transition-colors"
+        className="min-h-[100px] resize-none border-1 border-input/50 focus:border-primary/50 transition-colors"
       />
       <p className="text-xs text-muted-foreground/70">
         💡 Tip: Be specific about tone, expertise level, and response format

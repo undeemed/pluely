@@ -113,13 +113,13 @@ export const Settings = () => {
       <PopoverContent
         align="end"
         side="bottom"
-        className="w-screen p-0 pr-1 border shadow-lg overflow-hidden"
+        className="select-none w-screen p-0 border shadow-lg overflow-hidden border-input/50"
         sideOffset={8}
       >
         <ScrollArea className="h-[calc(100vh-6.5rem)]">
           <div className="p-6 space-y-4">
             {/* Configuration Header */}
-            <div className="border-b pb-2">
+            <div className="border-b border-input/50 pb-2">
               <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                 AI Configuration
               </h1>
@@ -184,7 +184,7 @@ export const Settings = () => {
           </div>
         </ScrollArea>
 
-        <div className="border-t bg-muted/30 backdrop-blur-sm">
+        <div className="border-t border-input/50">
           <Disclaimer />
         </div>
       </PopoverContent>
