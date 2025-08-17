@@ -14,7 +14,7 @@
     "windows": [
       {
         "title": "open-cluely",
-        "width": 800,
+        "width": 700,
         "height": 600,
         "decorations": false,
         "transparent": true,
