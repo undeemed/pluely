@@ -17,6 +17,8 @@ import {
 import { useCompletion } from "./useCompletion";
 import { useRef } from "react";
 import { AttachedFile } from "@/types";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export const Completion = () => {
   const {
@@ -144,11 +146,9 @@ export const Completion = () => {
                 )}
 
                 {response && (
-                  <div className="prose prose-sm max-w-none">
-                    <pre className="whitespace-pre-wrap font-sans">
-                      {response}
-                    </pre>
-                  </div>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {response}
+                  </ReactMarkdown>
                 )}
 
                 {isLoading && !response && (
