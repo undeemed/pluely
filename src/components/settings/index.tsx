@@ -159,7 +159,9 @@ export const Settings = () => {
               selectedModel={settings.selectedModel}
               customModel={settings.customModel}
               onModelChange={(value) =>
-                updateSettings({ selectedModel: value })
+                updateSettings({
+                  selectedModel: value.replace("models/", ""),
+                })
               }
               onCustomModelChange={(value) =>
                 updateSettings({ customModel: value })

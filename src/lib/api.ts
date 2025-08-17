@@ -32,7 +32,7 @@ export async function fetchModels(
     headers["Authorization"] = `Bearer ${apiKey}`;
   } else if (provider.authType === "x-api-key") {
     headers["x-api-key"] = apiKey;
-  } else if (provider.authType === "query" && provider.authParam) {
+  } else {
     // for gemini, append query param
     url += `?${provider.authParam}=${apiKey}`;
   }
@@ -91,6 +91,8 @@ export const streamCompletion = async (
       headers["Authorization"] = `Bearer ${apiKey}`;
     } else if (provider.authType === "x-api-key") {
       headers["x-api-key"] = apiKey;
+    } else if (provider.authType === "x-goog-api-key") {
+      headers["x-goog-api-key"] = apiKey;
     } else if (provider.authType === "query" && provider.authParam) {
       url += `?${provider.authParam}=${apiKey}`;
     }
@@ -98,7 +100,6 @@ export const streamCompletion = async (
     // prepare request body
     const requestBody = {
       model,
-      stream: true,
       ...payload,
     };
 
@@ -106,6 +107,10 @@ export const streamCompletion = async (
     if (provider.id === "claude") {
       requestBody.max_tokens = 4096;
       requestBody["anthropic-version"] = "2023-06-01";
+    }
+
+    if (provider.id !== "gemini") {
+      requestBody.stream = true;
     }
 
     const response = await fetch(url, {

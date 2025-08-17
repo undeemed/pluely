@@ -2,7 +2,6 @@ import {
   MicIcon,
   PaperclipIcon,
   Loader2,
-  SendIcon,
   XIcon,
   ImageIcon,
 } from "lucide-react";
@@ -60,12 +59,6 @@ export const Completion = () => {
     }
   };
 
-  const handleSubmit = () => {
-    if (!isLoading && input.trim()) {
-      submit();
-    }
-  };
-
   const isPopoverOpen = isLoading || response !== "" || error !== null;
 
   return (
@@ -97,15 +90,6 @@ export const Completion = () => {
                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 </div>
-              )}
-              {!isLoading && input.trim() && (
-                <Button
-                  size="sm"
-                  onClick={handleSubmit}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-                >
-                  <SendIcon className="h-3 w-3" />
-                </Button>
               )}
             </div>
           </PopoverTrigger>

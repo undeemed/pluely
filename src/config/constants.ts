@@ -137,8 +137,8 @@ export const providers = [
     id: "gemini",
     name: "Gemini (Google)",
     baseUrl: "https://generativelanguage.googleapis.com",
-    chatEndpoint: "/v1beta/${model}:generateContent",
-    authType: "query",
+    chatEndpoint: "/v1beta/models/${model}:streamGenerateContent?alt=sse",
+    authType: "x-goog-api-key",
     authParam: "key",
     defaultModel: "gemini-2.5-flash",
     response: {

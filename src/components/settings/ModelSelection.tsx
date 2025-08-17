@@ -79,7 +79,9 @@ export const ModelSelection = ({
                 value={modelId}
                 className="cursor-pointer hover:bg-accent/50"
               >
-                <span className="font-medium">{modelId}</span>
+                <span className="font-medium">
+                  {modelId.replace("models/", "")}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
