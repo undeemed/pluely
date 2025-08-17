@@ -97,6 +97,11 @@ export const streamCompletion = async (
       url += `?${provider.authParam}=${apiKey}`;
     }
 
+    if (provider.id === "claude") {
+      headers["anthropic-dangerous-direct-browser-access"] = "true";
+      headers["anthropic-version"] = "2023-06-01";
+    }
+
     // prepare request body
     const requestBody = {
       model,
@@ -106,7 +111,20 @@ export const streamCompletion = async (
     // special handling for claude
     if (provider.id === "claude") {
       requestBody.max_tokens = 4096;
-      requestBody["anthropic-version"] = "2023-06-01";
+
+      // extract system message from messages array and set it directly
+      if (requestBody.messages && Array.isArray(requestBody.messages)) {
+        const systemMessageIndex = requestBody.messages.findIndex(
+          (msg: any) => msg.role === "system"
+        );
+
+        if (systemMessageIndex !== -1) {
+          const systemMessage = requestBody.messages[systemMessageIndex];
+          requestBody.system = systemMessage.content;
+          // remove system message from messages array
+          requestBody.messages.splice(systemMessageIndex, 1);
+        }
+      }
     }
 
     if (provider.id !== "gemini") {
