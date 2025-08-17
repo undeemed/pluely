@@ -14,11 +14,11 @@ import { ModelSelection } from "./ModelSelection";
 import { Disclaimer } from "./Disclaimer";
 import { SystemPrompt } from "./SystemPrompt";
 import {
-  SettingsState,
   loadSettingsFromStorage,
   saveSettingsToStorage,
   fetchModels,
 } from "@/lib";
+import { SettingsState } from "@/types";
 
 export const Settings = () => {
   const [settings, setSettings] = useState<SettingsState>(
