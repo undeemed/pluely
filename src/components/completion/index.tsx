@@ -1,10 +1,4 @@
-import {
-  MicIcon,
-  PaperclipIcon,
-  Loader2,
-  XIcon,
-  ImageIcon,
-} from "lucide-react";
+import { MicIcon, PaperclipIcon, Loader2, XIcon } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -15,7 +9,6 @@ import {
 } from "@/components";
 import { useCompletion } from "./useCompletion";
 import { useRef } from "react";
-import { AttachedFile } from "@/types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -145,39 +138,6 @@ export const Completion = () => {
             </ScrollArea>
           </PopoverContent>
         </Popover>
-
-        {/* Attached Files Preview */}
-        {attachedFiles.length > 0 && (
-          <div className="absolute -top-20 left-0 right-0 bg-background border rounded-lg p-2 shadow-sm">
-            <div className="flex items-center gap-2 flex-wrap">
-              {attachedFiles.map((file: AttachedFile) => (
-                <div
-                  key={file.id}
-                  className="flex items-center gap-2 bg-muted rounded px-2 py-1 text-xs"
-                >
-                  <ImageIcon className="h-3 w-3" />
-                  <span className="truncate max-w-20">{file.name}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => removeFile(file.id)}
-                    className="h-4 w-4 p-0 hover:bg-destructive/20"
-                  >
-                    <XIcon className="h-2 w-2" />
-                  </Button>
-                </div>
-              ))}
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={clearFiles}
-                className="h-6 px-2 text-xs text-muted-foreground"
-              >
-                Clear all
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="relative">
@@ -191,7 +151,7 @@ export const Completion = () => {
 
         {/* File count badge */}
         {attachedFiles.length > 0 && (
-          <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-5 w-5 flex items-center justify-center text-xs font-medium">
+          <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-5 w-5 flex border border-white/50 items-center justify-center text-xs font-medium">
             {attachedFiles.length}
           </div>
         )}

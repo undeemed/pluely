@@ -38,7 +38,7 @@ export const ApiKeyInput = ({
       <div className="flex gap-2">
         <Input
           type="password"
-          placeholder="sk-..."
+          placeholder="**********"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={onKeyPress}
