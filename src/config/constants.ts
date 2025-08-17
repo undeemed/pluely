@@ -1,3 +1,8 @@
+// Storage keys
+export const STORAGE_KEYS = {
+  SETTINGS: "settings",
+} as const;
+
 // Available AI providers
 export const providers = [
   {
@@ -173,3 +178,7 @@ export const providers = [
     },
   },
 ];
+
+// Default settings
+export const DEFAULT_SYSTEM_PROMPT =
+  "You are a helpful AI assistant. Be concise, accurate, and friendly in your responses";

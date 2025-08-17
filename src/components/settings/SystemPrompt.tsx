@@ -1,5 +1,4 @@
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+import { Label, Textarea } from "@/components";
 
 interface SystemPromptProps {
   value: string;

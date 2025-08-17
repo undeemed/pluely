@@ -1,14 +1,15 @@
 import { Loader2 } from "lucide-react";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import {
+  Input,
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { ModelSelectionProps } from "./types";
+} from "@/components";
+
+import { ModelSelectionProps } from "@/types";
 
 const getPlaceholder = (provider: string) => {
   switch (provider) {

@@ -1,12 +1,12 @@
-import { Label } from "../ui/label";
 import {
+  Label,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { providers } from "./constants";
+} from "@/components";
+import { providers } from "@/config";
 
 interface ProviderSelectionProps {
   value: string;

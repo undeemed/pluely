@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import { SettingsIcon } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Button } from "../ui/button";
-import { ScrollArea } from "../ui/scroll-area";
-import { providers } from "./constants";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Button,
+  ScrollArea,
+} from "@/components";
+import { providers } from "@/config";
 import { ProviderSelection } from "./ProviderSelection";
 import { ApiKeyInput } from "./ApiKeyInput";
 import { ModelSelection } from "./ModelSelection";
 import { Disclaimer } from "./Disclaimer";
 import { SystemPrompt } from "./SystemPrompt";
-import { SettingsState } from "./types";
 import {
+  SettingsState,
   loadSettingsFromStorage,
   saveSettingsToStorage,
   fetchModels,
-} from "./utils";
+} from "@/lib";
 
 export const Settings = () => {
   const [settings, setSettings] = useState<SettingsState>(
@@ -105,10 +109,10 @@ export const Settings = () => {
       <PopoverContent
         align="end"
         side="bottom"
-        className="w-[calc(100vw-2rem)] p-0 pr-1 border shadow-lg overflow-hidden"
+        className="w-screen p-0 pr-1 border shadow-lg overflow-hidden"
         sideOffset={8}
       >
-        <ScrollArea className="h-[calc(100vh-8rem)]">
+        <ScrollArea className="h-[calc(100vh-6.5rem)]">
           <div className="p-6 space-y-4">
             {/* Configuration Header */}
             <div className="border-b pb-2">
