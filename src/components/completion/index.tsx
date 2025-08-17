@@ -145,6 +145,7 @@ export const Completion = () => {
           size="icon"
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading}
+          className="cursor-pointer"
         >
           <PaperclipIcon className="h-4 w-4" />
         </Button>

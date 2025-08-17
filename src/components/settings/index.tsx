@@ -100,7 +100,11 @@ export const Settings = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="icon" aria-label="Open Settings">
+        <Button
+          size="icon"
+          aria-label="Open Settings"
+          className="cursor-pointer"
+        >
           <SettingsIcon className="h-4 w-4" />
         </Button>
       </PopoverTrigger>

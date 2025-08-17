@@ -1,6 +1,7 @@
 // Storage keys
 export const STORAGE_KEYS = {
   SETTINGS: "settings",
+  THEME: "theme",
 } as const;
 
 // Available AI providers
