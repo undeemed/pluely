@@ -27,7 +27,7 @@ export const ProviderSelection = ({
       </div>
 
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full h-11 border-1 border-input/50 focus:border-primary/50 transition-colors">
+        <SelectTrigger className="w-full border-1 border-input/50 focus:border-primary/50 transition-colors">
           <SelectValue placeholder="Choose your AI provider" />
         </SelectTrigger>
         <SelectContent>

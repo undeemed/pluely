@@ -134,7 +134,7 @@ export const Settings = () => {
       <PopoverContent
         align="end"
         side="bottom"
-        className="select-none w-screen p-0 border shadow-lg overflow-hidden border-input/50"
+        className="select-none w-screen p-0 border overflow-hidden border-input/50"
         sideOffset={8}
       >
         <ScrollArea className="h-[calc(100vh-6.5rem)]">

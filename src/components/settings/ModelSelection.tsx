@@ -49,7 +49,7 @@ export const ModelSelection = ({
         </Label>
         <p className="text-xs text-muted-foreground leading-relaxed">
           {shouldShowSelect
-            ? "Choose the model that best fits your needs. Different models have varying capabilities and costs."
+            ? "Select models that support both text and image as input, and best fits your needs. "
             : "Enter the model name/ID for your selected provider (e.g., claude-3-sonnet, gemini-pro)."}
         </p>
       </div>
