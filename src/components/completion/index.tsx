@@ -5,6 +5,7 @@ import {
   XIcon,
   LoaderCircleIcon,
   MicOffIcon,
+  CopyIcon,
 } from "lucide-react";
 import {
   Popover,
@@ -139,7 +140,7 @@ export const Completion = () => {
                 className="pr-12"
               />
               {isLoading && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 animate-pulse">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                 </div>
               )}
@@ -153,22 +154,33 @@ export const Completion = () => {
             className="w-screen p-0 border shadow-lg overflow-hidden"
             sideOffset={8}
           >
-            <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+            <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
               <h3 className="font-semibold text-sm">AI Response</h3>
               <div className="flex items-center gap-2">
-                {isLoading && (
-                  <Button size="sm" variant="outline" onClick={cancel}>
-                    <XIcon className="h-3 w-3 mr-1" />
-                    Cancel
-                  </Button>
-                )}
                 <Button
-                  size="sm"
+                  size="icon"
                   variant="ghost"
-                  onClick={reset}
+                  onClick={() => {
+                    navigator.clipboard.writeText(response);
+                  }}
                   disabled={isLoading}
+                  className="cursor-pointer"
                 >
-                  <XIcon className="h-3 w-3" />
+                  <CopyIcon />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    if (isLoading) {
+                      cancel();
+                    } else {
+                      reset();
+                    }
+                  }}
+                  className="cursor-pointer"
+                >
+                  <XIcon />
                 </Button>
               </div>
             </div>
@@ -187,8 +199,8 @@ export const Completion = () => {
                   </ReactMarkdown>
                 )}
 
-                {isLoading && !response && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                {isLoading && (
+                  <div className="flex items-center gap-2 mt-4 text-muted-foreground animate-pulse">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span className="text-sm">Generating response...</span>
                   </div>
@@ -211,7 +223,7 @@ export const Completion = () => {
 
         {/* File count badge */}
         {attachedFiles.length > 0 && (
-          <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full h-5 w-5 flex border border-primary-foreground/50 items-center justify-center text-xs font-medium">
+          <div className="absolute -top-2 -right-2 bg-primary-foreground text-primary rounded-full h-5 w-5 flex border border-primary items-center justify-center text-xs font-medium">
             {attachedFiles.length}
           </div>
         )}
