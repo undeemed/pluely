@@ -64,6 +64,87 @@ export async function fetchModels(
     .sort();
 }
 
+// convert Float32Array to WAV blob
+const floatArrayToWav = (
+  audioData: Float32Array,
+  sampleRate: number = 16000
+): Blob => {
+  const buffer = new ArrayBuffer(44 + audioData.length * 2);
+  const view = new DataView(buffer);
+
+  // WAV header
+  const writeString = (offset: number, string: string) => {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  };
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + audioData.length * 2, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  writeString(36, "data");
+  view.setUint32(40, audioData.length * 2, true);
+
+  // Convert float samples to 16-bit PCM
+  let offset = 44;
+  for (let i = 0; i < audioData.length; i++) {
+    const sample = Math.max(-1, Math.min(1, audioData[i]));
+    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+    offset += 2;
+  }
+
+  return new Blob([buffer], { type: "audio/wav" });
+};
+
+// transcribe audio using OpenAI API
+export const transcribeAudio = async (
+  audioData: Float32Array,
+  apiKey: string
+): Promise<string> => {
+  try {
+    // Convert Float32Array to WAV blob
+    const wavBlob = floatArrayToWav(audioData);
+
+    // Create form data
+    const formData = new FormData();
+    formData.append("file", wavBlob, "audio.wav");
+    formData.append("model", "whisper-1");
+    formData.append("response_format", "text");
+
+    const response = await fetch(
+      "https://api.openai.com/v1/audio/transcriptions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Transcription API Error: ${response.status} ${response.statusText}\n${errorText}`
+      );
+    }
+
+    const transcription = await response.text();
+    return transcription.trim();
+  } catch (error) {
+    console.error("Transcription error:", error);
+    throw error;
+  }
+};
+
 // stream completion from API
 export const streamCompletion = async (
   provider: any,

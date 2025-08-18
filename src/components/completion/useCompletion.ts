@@ -5,8 +5,10 @@ import {
   fileToBase64,
   formatMessageForProvider,
   streamCompletion,
+  transcribeAudio,
 } from "@/lib";
 import { AttachedFile, CompletionState } from "@/types";
+import { useMicVAD } from "@ricky0123/vad-react";
 
 export const useCompletion = () => {
   const [state, setState] = useState<CompletionState>({
@@ -15,6 +17,45 @@ export const useCompletion = () => {
     isLoading: false,
     error: null,
     attachedFiles: [],
+  });
+
+  const [isTranscribing, setIsTranscribing] = useState(false);
+
+  const vad = useMicVAD({
+    userSpeakingThreshold: 0.6,
+    onSpeechEnd: async (audio) => {
+      console.log("User stopped talking");
+      console.log("Audio data:", audio);
+
+      try {
+        setIsTranscribing(true);
+        const settings = getSettings();
+
+        // Check if we have an OpenAI API key
+        if (!settings?.apiKey || !settings?.isApiKeySubmitted) {
+          console.warn("No API key configured for transcription");
+          return;
+        }
+
+        // For now, we'll use the configured API key assuming it's OpenAI
+        // In a production app, you might want to have separate API keys for different services
+        const transcription = await transcribeAudio(audio, settings.apiKey);
+
+        // Optionally, you could set this as input or append to existing input
+        if (transcription) {
+          submit(transcription);
+        }
+      } catch (error) {
+        console.error("Failed to transcribe audio:", error);
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error ? error.message : "Transcription failed",
+        }));
+      } finally {
+        setIsTranscribing(false);
+      }
+    },
   });
 
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -58,95 +99,108 @@ export const useCompletion = () => {
     setState((prev) => ({ ...prev, attachedFiles: [] }));
   }, []);
 
-  const submit = useCallback(async () => {
-    const settings = getSettings();
-    if (
-      !settings?.selectedProvider ||
-      !settings?.apiKey ||
-      !settings?.isApiKeySubmitted
-    ) {
-      setState((prev) => ({
-        ...prev,
-        error: "Please configure your AI provider and API key in settings",
-      }));
-      return;
-    }
+  const submit = useCallback(
+    async (speechText?: string) => {
+      const input = speechText || state.input;
+      const settings = getSettings();
+      if (
+        !settings?.selectedProvider ||
+        !settings?.apiKey ||
+        !settings?.isApiKeySubmitted
+      ) {
+        setState((prev) => ({
+          ...prev,
+          error: "Please configure your AI provider and API key in settings",
+        }));
+        return;
+      }
 
-    const provider = providers.find((p) => p.id === settings.selectedProvider);
-    if (!provider) {
-      setState((prev) => ({
-        ...prev,
-        error: "Invalid provider selected",
-      }));
-      return;
-    }
-
-    const model =
-      settings.selectedModel || settings.customModel || provider.defaultModel;
-    if (!model) {
-      setState((prev) => ({
-        ...prev,
-        error: "Please select a model in settings",
-      }));
-      return;
-    }
-
-    if (!state.input.trim()) {
-      return;
-    }
-
-    // Cancel any existing request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
-
-    setState((prev) => ({
-      ...prev,
-      isLoading: true,
-      error: null,
-      response: "",
-    }));
-
-    try {
-      const payload = formatMessageForProvider(
-        provider,
-        state.input,
-        state.attachedFiles,
-        settings.systemPrompt
+      const provider = providers.find(
+        (p) => p.id === settings.selectedProvider
       );
+      if (!provider) {
+        setState((prev) => ({
+          ...prev,
+          error: "Invalid provider selected",
+        }));
+        return;
+      }
 
-      await streamCompletion(
-        provider,
-        model,
-        settings.apiKey,
-        payload,
-        (chunk) => {
-          setState((prev) => ({
-            ...prev,
-            response: prev.response + chunk,
-          }));
-        },
-        (error) => {
-          setState((prev) => ({
-            ...prev,
-            error,
-            isLoading: false,
-          }));
-        },
-        abortControllerRef.current
-      );
+      const model =
+        settings.selectedModel || settings.customModel || provider.defaultModel;
+      if (!model) {
+        setState((prev) => ({
+          ...prev,
+          error: "Please select a model in settings",
+        }));
+        return;
+      }
 
-      setState((prev) => ({ ...prev, isLoading: false }));
-    } catch (error) {
+      if (!input.trim()) {
+        return;
+      }
+
+      if (speechText) {
+        setState((prev) => ({
+          ...prev,
+          input: speechText,
+        }));
+      }
+
+      // Cancel any existing request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      abortControllerRef.current = new AbortController();
+
       setState((prev) => ({
         ...prev,
-        error: error instanceof Error ? error.message : "An error occurred",
-        isLoading: false,
+        isLoading: true,
+        error: null,
+        response: "",
       }));
-    }
-  }, [state.input, state.attachedFiles]);
+
+      try {
+        const payload = formatMessageForProvider(
+          provider,
+          input,
+          state.attachedFiles,
+          settings.systemPrompt
+        );
+
+        await streamCompletion(
+          provider,
+          model,
+          settings.apiKey,
+          payload,
+          (chunk) => {
+            setState((prev) => ({
+              ...prev,
+              response: prev.response + chunk,
+            }));
+          },
+          (error) => {
+            setState((prev) => ({
+              ...prev,
+              error,
+              isLoading: false,
+            }));
+          },
+          abortControllerRef.current
+        );
+
+        setState((prev) => ({ ...prev, isLoading: false }));
+      } catch (error) {
+        setState((prev) => ({
+          ...prev,
+          error: error instanceof Error ? error.message : "An error occurred",
+          isLoading: false,
+        }));
+      }
+    },
+    [state.input, state.attachedFiles, state.isLoading]
+  );
 
   const cancel = useCallback(() => {
     if (abortControllerRef.current) {
@@ -181,5 +235,7 @@ export const useCompletion = () => {
     submit,
     cancel,
     reset,
+    vad,
+    isTranscribing,
   };
 };

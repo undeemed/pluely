@@ -1,4 +1,11 @@
-import { MicIcon, PaperclipIcon, Loader2, XIcon } from "lucide-react";
+import {
+  MicIcon,
+  PaperclipIcon,
+  Loader2,
+  XIcon,
+  LoaderCircleIcon,
+  MicOffIcon,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -26,6 +33,8 @@ export const Completion = () => {
     submit,
     cancel,
     reset,
+    vad,
+    isTranscribing,
   } = useCompletion();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,8 +65,28 @@ export const Completion = () => {
 
   return (
     <>
-      <Button size="icon" disabled>
-        <MicIcon className="h-4 w-4" />
+      <Button
+        size="icon"
+        onClick={() => {
+          if (vad.userSpeaking) {
+            vad.start();
+          } else if (vad.listening || isTranscribing) {
+            vad.pause();
+          } else {
+            vad.start();
+          }
+        }}
+        className="cursor-pointer"
+      >
+        {isTranscribing ? (
+          <LoaderCircleIcon className="h-4 w-4 animate-spin text-green-500" />
+        ) : vad.userSpeaking ? (
+          <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+        ) : vad.listening ? (
+          <MicOffIcon className="h-4 w-4 animate-pulse" />
+        ) : (
+          <MicIcon className="h-4 w-4" />
+        )}
       </Button>
 
       <div className="relative flex-1">
