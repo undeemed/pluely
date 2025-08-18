@@ -1,12 +1,4 @@
-import {
-  MicIcon,
-  PaperclipIcon,
-  Loader2,
-  XIcon,
-  LoaderCircleIcon,
-  MicOffIcon,
-  CopyIcon,
-} from "lucide-react";
+import { MicIcon, PaperclipIcon, Loader2, XIcon, CopyIcon } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -19,6 +11,7 @@ import { useCompletion } from "./useCompletion";
 import { useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Speech } from "./Speech";
 
 export const Completion = () => {
   const {
@@ -34,11 +27,12 @@ export const Completion = () => {
     submit,
     cancel,
     reset,
-    vad,
-    isTranscribing,
+    isOpenAIKeyAvailable,
+    enableVAD,
+    setEnableVAD,
+    setState,
     micOpen,
     setMicOpen,
-    isOpenAIKeyAvailable,
   } = useCompletion();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,35 +65,23 @@ export const Completion = () => {
     <>
       <Popover open={micOpen} onOpenChange={setMicOpen}>
         <PopoverTrigger asChild>
-          <Button
-            size="icon"
-            onClick={() => {
-              if (isOpenAIKeyAvailable()) {
-                if (vad.userSpeaking) {
-                  vad.pause();
-                } else if (vad.listening || isTranscribing) {
-                  vad.pause();
-                } else {
-                  vad.start();
-                }
-                return;
-              } else {
-                setMicOpen(true);
-                return;
-              }
-            }}
-            className="cursor-pointer"
-          >
-            {isTranscribing ? (
-              <LoaderCircleIcon className="h-4 w-4 animate-spin text-green-500" />
-            ) : vad.userSpeaking ? (
-              <LoaderCircleIcon className="h-4 w-4 animate-spin" />
-            ) : vad.listening ? (
-              <MicOffIcon className="h-4 w-4 animate-pulse" />
-            ) : (
+          {isOpenAIKeyAvailable() && enableVAD ? (
+            <Speech
+              submit={submit}
+              setState={setState}
+              setEnableVAD={setEnableVAD}
+            />
+          ) : (
+            <Button
+              size="icon"
+              onClick={() => {
+                setEnableVAD(!enableVAD);
+              }}
+              className="cursor-pointer"
+            >
               <MicIcon className="h-4 w-4" />
-            )}
-          </Button>
+            </Button>
+          )}
         </PopoverTrigger>
 
         <PopoverContent

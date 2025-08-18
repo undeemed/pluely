@@ -5,10 +5,8 @@ import {
   fileToBase64,
   formatMessageForProvider,
   streamCompletion,
-  transcribeAudio,
 } from "@/lib";
 import { AttachedFile, CompletionState } from "@/types";
-import { useMicVAD } from "@ricky0123/vad-react";
 
 export const useCompletion = () => {
   const [state, setState] = useState<CompletionState>({
@@ -18,57 +16,8 @@ export const useCompletion = () => {
     error: null,
     attachedFiles: [],
   });
-
-  const [isTranscribing, setIsTranscribing] = useState(false);
   const [micOpen, setMicOpen] = useState(false);
-
-  const vad = useMicVAD({
-    userSpeakingThreshold: 0.6,
-    startOnLoad: false,
-    onSpeechEnd: async (audio) => {
-      console.log("User stopped talking");
-      console.log("Audio data:", audio);
-
-      try {
-        setIsTranscribing(true);
-        const settings = getSettings();
-
-        // Check if we have an OpenAI API key for transcription
-        let openAiKey = "";
-        if (settings.selectedProvider === "openai") {
-          // Use the main API key if provider is OpenAI
-          if (!settings?.apiKey || !settings?.isApiKeySubmitted) {
-            console.warn("No OpenAI API key configured for transcription");
-            return;
-          }
-          openAiKey = settings.apiKey;
-        } else {
-          // Use the separate OpenAI key for non-OpenAI providers
-          if (!settings?.openAiApiKey || !settings?.isOpenAiApiKeySubmitted) {
-            console.warn("No OpenAI API key configured for speech-to-text");
-            return;
-          }
-          openAiKey = settings.openAiApiKey;
-        }
-
-        const transcription = await transcribeAudio(audio, openAiKey);
-
-        // Optionally, you could set this as input or append to existing input
-        if (transcription) {
-          submit(transcription);
-        }
-      } catch (error) {
-        console.error("Failed to transcribe audio:", error);
-        setState((prev) => ({
-          ...prev,
-          error:
-            error instanceof Error ? error.message : "Transcription failed",
-        }));
-      } finally {
-        setIsTranscribing(false);
-      }
-    },
-  });
+  const [enableVAD, setEnableVAD] = useState(false);
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -256,10 +205,11 @@ export const useCompletion = () => {
     submit,
     cancel,
     reset,
-    vad,
-    isTranscribing,
+    isOpenAIKeyAvailable,
+    setState,
+    enableVAD,
+    setEnableVAD,
     micOpen,
     setMicOpen,
-    isOpenAIKeyAvailable,
   };
 };
