@@ -35,6 +35,9 @@ export const Completion = () => {
     reset,
     vad,
     isTranscribing,
+    micOpen,
+    setMicOpen,
+    isOpenAIKeyAvailable,
   } = useCompletion();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -65,29 +68,56 @@ export const Completion = () => {
 
   return (
     <>
-      <Button
-        size="icon"
-        onClick={() => {
-          if (vad.userSpeaking) {
-            vad.start();
-          } else if (vad.listening || isTranscribing) {
-            vad.pause();
-          } else {
-            vad.start();
-          }
-        }}
-        className="cursor-pointer"
-      >
-        {isTranscribing ? (
-          <LoaderCircleIcon className="h-4 w-4 animate-spin text-green-500" />
-        ) : vad.userSpeaking ? (
-          <LoaderCircleIcon className="h-4 w-4 animate-spin" />
-        ) : vad.listening ? (
-          <MicOffIcon className="h-4 w-4 animate-pulse" />
-        ) : (
-          <MicIcon className="h-4 w-4" />
-        )}
-      </Button>
+      <Popover open={micOpen} onOpenChange={setMicOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            size="icon"
+            onClick={() => {
+              if (isOpenAIKeyAvailable()) {
+                if (vad.userSpeaking) {
+                  vad.pause();
+                } else if (vad.listening || isTranscribing) {
+                  vad.pause();
+                } else {
+                  vad.start();
+                }
+                return;
+              } else {
+                setMicOpen(true);
+                return;
+              }
+            }}
+            className="cursor-pointer"
+          >
+            {isTranscribing ? (
+              <LoaderCircleIcon className="h-4 w-4 animate-spin text-green-500" />
+            ) : vad.userSpeaking ? (
+              <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+            ) : vad.listening ? (
+              <MicOffIcon className="h-4 w-4 animate-pulse" />
+            ) : (
+              <MicIcon className="h-4 w-4" />
+            )}
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent
+          side="top"
+          align="center"
+          className={`w-80 p-3 ${isOpenAIKeyAvailable() ? "hidden" : ""}`}
+          sideOffset={8}
+        >
+          <div className="text-sm">
+            <div className="font-semibold text-orange-600 mb-1">
+              OpenAI Key Required
+            </div>
+            <p className="text-muted-foreground">
+              Speech-to-text requires an OpenAI API key for Whisper. Please
+              configure it in settings to enable voice input.
+            </p>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       <div className="relative flex-1">
         <Popover

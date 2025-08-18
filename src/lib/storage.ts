@@ -11,6 +11,8 @@ const defaultSettings: SettingsState = {
   availableModels: [],
   isLoadingModels: false,
   modelsFetchError: null,
+  openAiApiKey: "",
+  isOpenAiApiKeySubmitted: false,
 };
 
 export const loadSettingsFromStorage = (): SettingsState => {

@@ -13,6 +13,7 @@ import { ApiKeyInput } from "./ApiKeyInput";
 import { ModelSelection } from "./ModelSelection";
 import { Disclaimer } from "./Disclaimer";
 import { SystemPrompt } from "./SystemPrompt";
+import { Speech } from "./Speech";
 import {
   loadSettingsFromStorage,
   saveSettingsToStorage,
@@ -85,6 +86,26 @@ export const Settings = () => {
       isLoadingModels: false,
       modelsFetchError: null,
     });
+  };
+
+  const handleOpenAiApiKeySubmit = () => {
+    if (!settings.openAiApiKey.trim()) return;
+    updateSettings({
+      isOpenAiApiKeySubmitted: true,
+    });
+  };
+
+  const handleOpenAiApiKeyDelete = () => {
+    updateSettings({
+      openAiApiKey: "",
+      isOpenAiApiKeySubmitted: false,
+    });
+  };
+
+  const handleOpenAiKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleOpenAiApiKeySubmit();
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -175,6 +196,19 @@ export const Settings = () => {
               isLoadingModels={settings.isLoadingModels}
               modelsFetchError={settings.modelsFetchError}
             />
+
+            {/* Speech-to-Text Configuration (only show for non-OpenAI providers) */}
+            {settings.selectedProvider &&
+              settings.selectedProvider !== "openai" && (
+                <Speech
+                  value={settings.openAiApiKey}
+                  onChange={(value) => updateSettings({ openAiApiKey: value })}
+                  onSubmit={handleOpenAiApiKeySubmit}
+                  onDelete={handleOpenAiApiKeyDelete}
+                  onKeyPress={handleOpenAiKeyPress}
+                  isSubmitted={settings.isOpenAiApiKeySubmitted}
+                />
+              )}
 
             {/* System Prompt */}
             <SystemPrompt

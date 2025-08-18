@@ -20,9 +20,11 @@ export const useCompletion = () => {
   });
 
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [micOpen, setMicOpen] = useState(false);
 
   const vad = useMicVAD({
     userSpeakingThreshold: 0.6,
+    startOnLoad: false,
     onSpeechEnd: async (audio) => {
       console.log("User stopped talking");
       console.log("Audio data:", audio);
@@ -31,15 +33,25 @@ export const useCompletion = () => {
         setIsTranscribing(true);
         const settings = getSettings();
 
-        // Check if we have an OpenAI API key
-        if (!settings?.apiKey || !settings?.isApiKeySubmitted) {
-          console.warn("No API key configured for transcription");
-          return;
+        // Check if we have an OpenAI API key for transcription
+        let openAiKey = "";
+        if (settings.selectedProvider === "openai") {
+          // Use the main API key if provider is OpenAI
+          if (!settings?.apiKey || !settings?.isApiKeySubmitted) {
+            console.warn("No OpenAI API key configured for transcription");
+            return;
+          }
+          openAiKey = settings.apiKey;
+        } else {
+          // Use the separate OpenAI key for non-OpenAI providers
+          if (!settings?.openAiApiKey || !settings?.isOpenAiApiKeySubmitted) {
+            console.warn("No OpenAI API key configured for speech-to-text");
+            return;
+          }
+          openAiKey = settings.openAiApiKey;
         }
 
-        // For now, we'll use the configured API key assuming it's OpenAI
-        // In a production app, you might want to have separate API keys for different services
-        const transcription = await transcribeAudio(audio, settings.apiKey);
+        const transcription = await transcribeAudio(audio, openAiKey);
 
         // Optionally, you could set this as input or append to existing input
         if (transcription) {
@@ -221,6 +233,15 @@ export const useCompletion = () => {
     }));
   }, [cancel]);
 
+  const isOpenAIKeyAvailable = useCallback(() => {
+    const settings = getSettings();
+    if (!settings) return false;
+    return (
+      settings.openAiApiKey ||
+      (settings.selectedProvider === "openai" && settings.apiKey)
+    );
+  }, []);
+
   return {
     input: state.input,
     setInput,
@@ -237,5 +258,8 @@ export const useCompletion = () => {
     reset,
     vad,
     isTranscribing,
+    micOpen,
+    setMicOpen,
+    isOpenAIKeyAvailable,
   };
 };
