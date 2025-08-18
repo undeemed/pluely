@@ -29,29 +29,25 @@
         "acceptFirstMouse": true
       }
     ],
-    "security": {
-      "csp": null
-    }
+    "security": { "csp": null }
   },
   "bundle": {
     "active": true,
-    "targets": "all",
-    "icon": ["icons/icon.png"],
+    "targets": ["dmg", "nsis", "deb"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
     "resources": ["info.plist", "pluely.desktop"],
-    "macOS": {
-      "frameworks": [],
-      "exceptionDomain": "",
-      "signingIdentity": null,
-      "entitlements": null,
-      "minimumSystemVersion": "10.13"
-    },
+    "macOS": { "minimumSystemVersion": "10.13" },
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
       "timestampUrl": "",
-      "webviewInstallMode": {
-        "type": "downloadBootstrapper"
-      },
+      "webviewInstallMode": { "type": "downloadBootstrapper" },
       "allowDowngrades": false,
       "wix": {
         "language": "en-US",
@@ -80,18 +76,15 @@
           "libayatana-appindicator3-1"
         ],
         "desktopTemplate": "pluely.desktop"
-      },
-      "appimage": {
-        "bundleMediaFramework": true
-      },
-      "rpm": {
-        "depends": [
-          "alsa-lib-devel",
-          "pulseaudio-libs-devel",
-          "webkit2gtk3-devel",
-          "gtk3-devel"
-        ]
       }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://api.github.com/repos/iamsrikanthnani/pluely/releases/latest"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY2RDJBNUFFM0ZCREEyQjEKUldTeG9yMC9ycVhTWmlBRkovV2N5L3RudDhTTHFzM3QxSkF0R0doRGtvSUJKWktpdGp4cWRhcmcK"
     }
   }
 }

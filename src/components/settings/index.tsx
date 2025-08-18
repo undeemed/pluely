@@ -217,6 +217,17 @@ export const Settings = () => {
               onChange={(value) => updateSettings({ systemPrompt: value })}
             />
           </div>
+
+          <div className="pb-4 flex items-center justify-center">
+            <a
+              href="https://www.srikanthnani.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground text-center font-medium"
+            >
+              🚀 Built by Srikanth Nani ✨
+            </a>
+          </div>
         </ScrollArea>
 
         <div className="border-t border-input/50">
