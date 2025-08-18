@@ -1,4 +1,12 @@
-import { MicIcon, PaperclipIcon, Loader2, XIcon, CopyIcon } from "lucide-react";
+import {
+  MicIcon,
+  PaperclipIcon,
+  Loader2,
+  XIcon,
+  CopyIcon,
+  MessageCircle,
+  X,
+} from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -12,6 +20,7 @@ import { useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Speech } from "./Speech";
+import { MessageHistory } from "../history";
 
 export const Completion = () => {
   const {
@@ -33,6 +42,9 @@ export const Completion = () => {
     setState,
     micOpen,
     setMicOpen,
+    currentConversationId,
+    conversationHistory,
+    startNewConversation,
   } = useCompletion();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +90,7 @@ export const Completion = () => {
                 setEnableVAD(!enableVAD);
               }}
               className="cursor-pointer"
+              title="Toggle voice input"
             >
               <MicIcon className="h-4 w-4" />
             </Button>
@@ -112,15 +125,40 @@ export const Completion = () => {
           }}
         >
           <PopoverTrigger asChild>
-            <div className="relative">
+            <div className="relative select-none">
               <Input
                 placeholder="Ask me anything..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
-                className="pr-12"
+                className={`${
+                  currentConversationId && conversationHistory.length > 0
+                    ? "pr-24"
+                    : "pr-12"
+                }`}
               />
+
+              {/* Conversation thread indicator */}
+              {currentConversationId &&
+                conversationHistory.length > 0 &&
+                !isLoading && (
+                  <div className="absolute select-none right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <div
+                      className="cursor-pointer flex items-center gap-1 rounded-xl px-2 py-1 transition-colors bg-muted/50 border border-primary/20 hover:border-primary/60"
+                      title={`${conversationHistory.length} messages in this conversation, clear conversation`}
+                      onClick={startNewConversation}
+                    >
+                      <MessageCircle className="h-4 w-4 text-primary" />
+                      <span className="text-sm text-primary font-medium">
+                        {conversationHistory.length}
+                      </span>
+                      <X className="h-3 w-3" />
+                    </div>
+                  </div>
+                )}
+
+              {/* Loading indicator */}
               {isLoading && (
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 animate-pulse">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -139,6 +177,11 @@ export const Completion = () => {
             <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
               <h3 className="font-semibold text-sm">AI Response</h3>
               <div className="flex items-center gap-2">
+                <MessageHistory
+                  conversationHistory={conversationHistory}
+                  currentConversationId={currentConversationId}
+                  onStartNewConversation={startNewConversation}
+                />
                 <Button
                   size="icon"
                   variant="ghost"
@@ -147,6 +190,7 @@ export const Completion = () => {
                   }}
                   disabled={isLoading}
                   className="cursor-pointer"
+                  title="Copy response to clipboard"
                 >
                   <CopyIcon />
                 </Button>
@@ -161,6 +205,7 @@ export const Completion = () => {
                     }
                   }}
                   className="cursor-pointer"
+                  title={isLoading ? "Cancel loading" : "Clear conversation"}
                 >
                   <XIcon />
                 </Button>
@@ -199,6 +244,7 @@ export const Completion = () => {
           onClick={() => fileInputRef.current?.click()}
           disabled={isLoading}
           className="cursor-pointer"
+          title="Attach images"
         >
           <PaperclipIcon className="h-4 w-4" />
         </Button>

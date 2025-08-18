@@ -125,6 +125,7 @@ export const Settings = () => {
           size="icon"
           aria-label="Open Settings"
           className="cursor-pointer"
+          title="Open Settings"
         >
           <SettingsIcon className="h-4 w-4" />
         </Button>

@@ -1,4 +1,4 @@
-import { AttachedFile } from "../types";
+import { AttachedFile, ChatMessage } from "../types";
 
 // convert file to base64
 export const fileToBase64 = (file: File): Promise<string> => {
@@ -20,31 +20,47 @@ export const formatMessageForProvider = (
   provider: any,
   text: string,
   images: AttachedFile[],
-  systemPrompt?: string
+  systemPrompt?: string,
+  conversationHistory?: ChatMessage[]
 ) => {
   const messages: any[] = [];
 
   // add system message if provided
-  if (systemPrompt) {
-    if (provider.id === "gemini") {
-      // gemini doesn't have system role, we'll prepend to user message
-    } else {
-      messages.push({
-        role: "system",
-        content: systemPrompt,
-      });
-    }
+  if (systemPrompt && provider.id !== "gemini") {
+    messages.push({
+      role: "system",
+      content: systemPrompt,
+    });
   }
 
-  // format user message based on provider
+  // add conversation history
+  if (conversationHistory && conversationHistory.length > 0) {
+    conversationHistory.forEach((msg) => {
+      if (msg.role === "system" && provider.id === "gemini") {
+        // Skip system messages for Gemini as they're handled differently
+        return;
+      }
+
+      if (provider.id === "openai" || provider.id === "grok") {
+        // Since we don't store images in history, just add text content
+        messages.push({ role: msg.role, content: msg.content });
+      } else if (provider.id === "claude") {
+        // Since we don't store images in history, just add text content
+        messages.push({ role: msg.role, content: msg.content });
+      }
+    });
+  }
+
+  // format current user message based on provider
   if (provider.id === "openai" || provider.id === "grok") {
     if (images.length === 0) {
+      const content =
+        systemPrompt && provider.id === "gemini"
+          ? `${systemPrompt}\n\n${text}`
+          : text;
       messages.push({
         role: "user",
-        content:
-          systemPrompt && provider.id === "gemini"
-            ? `${systemPrompt}\n\n${text}`
-            : text,
+        content,
       });
     } else {
       const content: any[] = [
@@ -97,12 +113,31 @@ export const formatMessageForProvider = (
       });
     }
   } else if (provider.id === "gemini") {
-    const parts: any[] = [
+    // For Gemini, we need to handle conversation history differently
+    const contents: any[] = [];
+
+    // Add conversation history as separate contents
+    if (conversationHistory && conversationHistory.length > 0) {
+      conversationHistory.forEach((msg) => {
+        if (msg.role === "system") return; // Skip system messages
+
+        const parts: any[] = [{ text: msg.content }];
+        // Since we don't store images in history, just add text content
+
+        contents.push({
+          role: msg.role === "assistant" ? "model" : "user",
+          parts,
+        });
+      });
+    }
+
+    // Add current message
+    const currentParts: any[] = [
       { text: systemPrompt ? `${systemPrompt}\n\n${text}` : text },
     ];
 
     images.forEach((image) => {
-      parts.push({
+      currentParts.push({
         inline_data: {
           mime_type: image.type,
           data: image.base64,
@@ -110,14 +145,12 @@ export const formatMessageForProvider = (
       });
     });
 
-    return {
-      contents: [
-        {
-          role: "user",
-          parts,
-        },
-      ],
-    };
+    contents.push({
+      role: "user",
+      parts: currentParts,
+    });
+
+    return { contents };
   }
 
   return { messages };

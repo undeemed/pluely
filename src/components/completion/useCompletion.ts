@@ -1,12 +1,20 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { providers } from "@/config";
 import {
   getSettings,
   fileToBase64,
   formatMessageForProvider,
   streamCompletion,
+  saveConversation,
+  getConversation,
+  generateConversationTitle,
 } from "@/lib";
-import { AttachedFile, CompletionState } from "@/types";
+import {
+  AttachedFile,
+  CompletionState,
+  ChatMessage,
+  ChatConversation,
+} from "@/types";
 
 export const useCompletion = () => {
   const [state, setState] = useState<CompletionState>({
@@ -15,6 +23,8 @@ export const useCompletion = () => {
     isLoading: false,
     error: null,
     attachedFiles: [],
+    currentConversationId: null,
+    conversationHistory: [],
   });
   const [micOpen, setMicOpen] = useState(false);
   const [enableVAD, setEnableVAD] = useState(false);
@@ -127,8 +137,11 @@ export const useCompletion = () => {
           provider,
           input,
           state.attachedFiles,
-          settings.systemPrompt
+          settings.systemPrompt,
+          state.conversationHistory
         );
+
+        let fullResponse = "";
 
         await streamCompletion(
           provider,
@@ -136,6 +149,7 @@ export const useCompletion = () => {
           settings.apiKey,
           payload,
           (chunk) => {
+            fullResponse += chunk;
             setState((prev) => ({
               ...prev,
               response: prev.response + chunk,
@@ -152,6 +166,17 @@ export const useCompletion = () => {
         );
 
         setState((prev) => ({ ...prev, isLoading: false }));
+
+        // Save the conversation after successful completion
+        if (fullResponse) {
+          saveCurrentConversation(input, fullResponse, state.attachedFiles);
+          // Clear input and attached files after saving
+          setState((prev) => ({
+            ...prev,
+            input: "",
+            attachedFiles: [],
+          }));
+        }
       } catch (error) {
         setState((prev) => ({
           ...prev,
@@ -191,6 +216,125 @@ export const useCompletion = () => {
     );
   }, []);
 
+  const loadConversation = useCallback((conversation: ChatConversation) => {
+    setState((prev) => ({
+      ...prev,
+      currentConversationId: conversation.id,
+      conversationHistory: conversation.messages,
+      input: "",
+      response: "",
+      error: null,
+      isLoading: false,
+    }));
+  }, []);
+
+  const startNewConversation = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      currentConversationId: null,
+      conversationHistory: [],
+      input: "",
+      response: "",
+      error: null,
+      isLoading: false,
+      attachedFiles: [],
+    }));
+  }, []);
+
+  const saveCurrentConversation = useCallback(
+    (
+      userMessage: string,
+      assistantResponse: string,
+      _attachedFiles: AttachedFile[] // Prefixed with _ to indicate intentionally unused
+    ) => {
+      const conversationId =
+        state.currentConversationId ||
+        `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const timestamp = Date.now();
+
+      const userMsg: ChatMessage = {
+        id: `msg_${timestamp}_user`,
+        role: "user",
+        content: userMessage,
+        timestamp,
+        // Don't store attachedFiles to avoid localStorage bloat
+      };
+
+      const assistantMsg: ChatMessage = {
+        id: `msg_${timestamp}_assistant`,
+        role: "assistant",
+        content: assistantResponse,
+        timestamp: timestamp + 1,
+      };
+
+      const newMessages = [...state.conversationHistory, userMsg, assistantMsg];
+      const title =
+        state.conversationHistory.length === 0
+          ? generateConversationTitle(userMessage)
+          : undefined;
+
+      const conversation: ChatConversation = {
+        id: conversationId,
+        title:
+          title ||
+          (state.currentConversationId
+            ? getConversation(state.currentConversationId)?.title ||
+              generateConversationTitle(userMessage)
+            : generateConversationTitle(userMessage)),
+        messages: newMessages,
+        createdAt: state.currentConversationId
+          ? getConversation(state.currentConversationId)?.createdAt || timestamp
+          : timestamp,
+        updatedAt: timestamp,
+      };
+
+      saveConversation(conversation);
+
+      setState((prev) => ({
+        ...prev,
+        currentConversationId: conversationId,
+        conversationHistory: newMessages,
+      }));
+    },
+    [state.currentConversationId, state.conversationHistory]
+  );
+
+  // Listen for conversation events from the main ChatHistory component
+  useEffect(() => {
+    const handleConversationSelected = (event: any) => {
+      const conversation = event.detail;
+      loadConversation(conversation);
+    };
+
+    const handleNewConversation = () => {
+      startNewConversation();
+    };
+
+    const handleConversationDeleted = (event: any) => {
+      const deletedId = event.detail;
+      // If the currently active conversation was deleted, start a new one
+      if (state.currentConversationId === deletedId) {
+        startNewConversation();
+      }
+    };
+
+    window.addEventListener("conversationSelected", handleConversationSelected);
+    window.addEventListener("newConversation", handleNewConversation);
+    window.addEventListener("conversationDeleted", handleConversationDeleted);
+
+    return () => {
+      window.removeEventListener(
+        "conversationSelected",
+        handleConversationSelected
+      );
+      window.removeEventListener("newConversation", handleNewConversation);
+      window.removeEventListener(
+        "conversationDeleted",
+        handleConversationDeleted
+      );
+    };
+  }, [loadConversation, startNewConversation, state.currentConversationId]);
+
   return {
     input: state.input,
     setInput,
@@ -211,5 +355,10 @@ export const useCompletion = () => {
     setEnableVAD,
     micOpen,
     setMicOpen,
+    // Conversation history functions
+    currentConversationId: state.currentConversationId,
+    conversationHistory: state.conversationHistory,
+    loadConversation,
+    startNewConversation,
   };
 };

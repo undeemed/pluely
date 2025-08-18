@@ -7,12 +7,30 @@ export interface AttachedFile {
   size: number;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  timestamp: number;
+  attachedFiles?: AttachedFile[];
+}
+
+export interface ChatConversation {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface CompletionState {
   input: string;
   response: string;
   isLoading: boolean;
   error: string | null;
   attachedFiles: AttachedFile[];
+  currentConversationId: string | null;
+  conversationHistory: ChatMessage[];
 }
 
 // Provider-related types
