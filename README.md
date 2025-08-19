@@ -21,6 +21,20 @@
 
 This is the **open source version** of the $15M company [Cluely](https://cluely.com/) 🎯. Experience the same powerful real-time AI assistance, but with complete transparency, privacy, and customization control.
 
+## 📥 **Download Pluely**
+
+<div align="center">
+
+### 🚀 **Get the Latest Release**
+
+[![Download for macOS](https://img.shields.io/badge/Download%20for-macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/iamsrikanthnani/pluely/releases/latest) &nbsp; [![Download for Linux](https://img.shields.io/badge/Download%20for-Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/iamsrikanthnani/pluely/releases/latest) &nbsp; [![Download for Windows](https://img.shields.io/badge/Download%20for-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white)](https://github.com/iamsrikanthnani/pluely/releases/latest)
+
+[![GitHub Release](https://img.shields.io/github/v/release/iamsrikanthnani/pluely?style=for-the-badge&logo=github&label=Latest%20Version)](https://github.com/iamsrikanthnani/pluely/releases/latest) &nbsp; [![GitHub Downloads](https://img.shields.io/github/downloads/iamsrikanthnani/pluely/total?style=for-the-badge&logo=github&label=Total%20Downloads)](https://github.com/iamsrikanthnani/pluely/releases)
+
+**Available formats:** `.dmg` (macOS) • `.msi` (Windows) • `.deb` (Linux)
+
+</div>
+
 ---
 
 ## ⚡ **The Ultimate Lightweight AI Companion**
@@ -51,6 +65,85 @@ This is the **open source version** of the $15M company [Cluely](https://cluely.
 |  **Startup Time**   |          **<100ms** ⚡          |          Several seconds          |
 |     **Privacy**     | **100% Local with your LLM** 🔒 |       Data sent to servers        |
 |      **Cost**       |    **Free & Open Source** 💝    |    **$15M company pricing** 💸    |
+
+---
+
+## 🎥 **Live Demos & Setup**
+
+### 🔧 **AI Provider Setup**
+
+Get started with your preferred AI provider in seconds. Pluely supports all major LLM providers with dynamic model fetching:
+
+<div>
+
+#### **OpenAI Setup**
+
+<img src="images/openai.GIF" alt="OpenAI API Setup" width="600"/>
+
+_Add your OpenAI API key and select from dynamically fetched models including GPT-4, GPT-4 Turbo, and more_
+
+#### **Google Gemini Setup**
+
+<img src="images/gemini.GIF" alt="Google Gemini API Setup" width="600"/>
+
+_Connect to Google Gemini with your API key and choose from available models like Gemini Pro_
+
+#### **xAI Grok Setup**
+
+<img src="images/grok.GIF" alt="xAI Grok API Setup" width="600"/>
+
+_Integrate with xAI Grok - dynamically fetches available models for seamless AI assistance_
+
+#### **Anthropic Claude Setup**
+
+<img src="images/claude.GIF" alt="Anthropic Claude API Setup" width="600"/>
+
+_Enter your Claude API key and model name manually for powerful AI conversations_
+
+</div>
+
+---
+
+### 💬 **Input Methods Demo**
+
+Experience multiple ways to interact with Pluely - type, speak, or attach images:
+
+<div>
+
+|                          **Text Input**                          |                          **Multi-Modal Input**                          |
+| :--------------------------------------------------------------: | :---------------------------------------------------------------------: |
+| <img src="images/input1.GIF" alt="Text Input Demo" width="400"/> | <img src="images/input2.GIF" alt="Multi-Modal Input Demo" width="400"/> |
+|     _Clean, intuitive text interface with markdown support_      |       _Attach images, screenshots, and documents for AI analysis_       |
+
+</div>
+
+---
+
+### 🎤 **Voice Input Demo**
+
+Speak naturally and get instant AI responses with advanced voice activity detection:
+
+<div>
+
+<img src="images/audio.GIF" alt="Voice Input Demo" width="600"/>
+
+_Real-time speech-to-text using OpenAI Whisper with automatic voice detection - just speak and get AI responses_
+
+</div>
+
+---
+
+### 📚 **Conversation History**
+
+Keep track of all your AI interactions with persistent conversation history:
+
+<div>
+
+<img src="images/history.GIF" alt="Conversation History Demo" width="600"/>
+
+_Browse through previous conversations, search chat history, and continue where you left off_
+
+</div>
 
 ---
 
@@ -185,7 +278,7 @@ This creates platform-specific installers in `src-tauri/target/release/bundle/`:
 
 - **macOS**: `.dmg` file
 - **Windows**: `.msi` installer
-- **Linux**: `.deb` and `.AppImage` files
+- **Linux**: `.deb` file
 
 ---
 
@@ -353,6 +446,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 - **[@ricky0123/vad-react](https://github.com/ricky0123/vad)** - Voice Activity Detection
 - **[OpenAI](https://openai.com/)** - GPT models and Whisper API
 - **[Anthropic](https://anthropic.com/)** - Claude AI models
+- **[xAI](https://x.ai/)** - Grok AI models
+- **[Google](https://gemini.google.com/)** - Gemini AI models
 
 ---
 
@@ -375,6 +470,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-**Made with ❤️ by [Srikanth Nani](https://www.srikanthnani.com/) and the open source community**
+**Made with ❤️ by [Srikanth Nani](https://www.srikanthnani.com/)**
 
 _Experience the power of Cluely, but with complete transparency and control over your data._
