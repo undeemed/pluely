@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "pluely",
+  "productName": "Pluely",
   "version": "0.1.0",
   "identifier": "com.srikanthnani.pluely",
   "build": {
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "pluely",
+        "title": "Pluely - AI Assistant",
         "width": 700,
         "height": 600,
         "decorations": false,
