@@ -15,7 +15,7 @@ import {
   ScrollArea,
   Input,
 } from "@/components";
-import { useCompletion } from "./useCompletion";
+import { useCompletion } from "@/hooks";
 import { useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
