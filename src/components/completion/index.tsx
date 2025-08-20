@@ -15,8 +15,9 @@ import {
   ScrollArea,
   Input,
 } from "@/components";
-import { useCompletion } from "@/hooks";
-import { useRef } from "react";
+import { useCompletion, useWindowFocus } from "@/hooks";
+import { useWindowResize } from "@/hooks";
+import { useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Speech } from "./Speech";
@@ -47,6 +48,7 @@ export const Completion = () => {
     startNewConversation,
   } = useCompletion();
 
+  const { resizeWindow } = useWindowResize();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,6 +74,21 @@ export const Completion = () => {
   };
 
   const isPopoverOpen = isLoading || response !== "" || error !== null;
+
+  useEffect(() => {
+    resizeWindow(isPopoverOpen || micOpen);
+  }, [isPopoverOpen, micOpen, resizeWindow]);
+
+  useWindowFocus({
+    onFocusLost: () => {
+      if (!isLoading && !isPopoverOpen) {
+        reset();
+      }
+      if (micOpen) {
+        setMicOpen(false);
+      }
+    },
+  });
 
   return (
     <>
@@ -124,7 +141,7 @@ export const Completion = () => {
             }
           }}
         >
-          <PopoverTrigger asChild>
+          <PopoverTrigger asChild className="!border-none">
             <div className="relative select-none">
               <Input
                 placeholder="Ask me anything..."
@@ -212,7 +229,7 @@ export const Completion = () => {
               </div>
             </div>
 
-            <ScrollArea className="h-[calc(100vh-8rem)]">
+            <ScrollArea className="h-[calc(100vh-7rem)]">
               <div className="p-4">
                 {error && (
                   <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded text-sm text-destructive">

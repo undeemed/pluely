@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useWindowFocus, useWindowResize } from "@/hooks";
 import { SettingsIcon } from "lucide-react";
 import {
   Popover,
@@ -25,7 +26,8 @@ export const Settings = () => {
   const [settings, setSettings] = useState<SettingsState>(
     loadSettingsFromStorage
   );
-
+  const { resizeWindow } = useWindowResize();
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   // Save to localStorage whenever settings change
   useEffect(() => {
     saveSettingsToStorage(settings);
@@ -118,13 +120,23 @@ export const Settings = () => {
     (p) => p.id === settings.selectedProvider
   );
 
+  useEffect(() => {
+    resizeWindow(isPopoverOpen);
+  }, [isPopoverOpen, resizeWindow]);
+
+  useWindowFocus({
+    onFocusLost: () => {
+      setIsPopoverOpen(false);
+    },
+  });
+
   return (
-    <Popover>
+    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
       <PopoverTrigger asChild>
         <Button
           size="icon"
           aria-label="Open Settings"
-          className="cursor-pointer"
+          className="cursor-pointer [data-state=open]:bg-[red]"
           title="Open Settings"
         >
           <SettingsIcon className="h-4 w-4" />
