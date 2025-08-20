@@ -235,7 +235,23 @@ export const Completion = () => {
                 )}
 
                 {response && (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      pre: ({ node, ...props }) => (
+                        <pre
+                          {...props}
+                          className="whitespace-pre-wrap break-words"
+                        />
+                      ),
+                      code: ({ node, ...props }) => (
+                        <code
+                          {...props}
+                          className="whitespace-pre-wrap break-words"
+                        />
+                      ),
+                    }}
+                  >
                     {response}
                   </ReactMarkdown>
                 )}

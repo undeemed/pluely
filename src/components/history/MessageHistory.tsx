@@ -106,8 +106,24 @@ export const MessageHistory = ({
                       })}
                     </span>
                   </div>
-                  <div className="text-sm">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  <div className="text-sm select-auto break-words whitespace-pre-wrap">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        pre: ({ node, ...props }) => (
+                          <pre
+                            {...props}
+                            className="whitespace-pre-wrap break-words"
+                          />
+                        ),
+                        code: ({ node, ...props }) => (
+                          <code
+                            {...props}
+                            className="whitespace-pre-wrap break-words"
+                          />
+                        ),
+                      }}
+                    >
                       {message.content}
                     </ReactMarkdown>
                   </div>
