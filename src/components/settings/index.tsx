@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useWindowFocus, useWindowResize } from "@/hooks";
+import { useWindowResize } from "@/hooks";
 import { SettingsIcon } from "lucide-react";
 import {
   Popover,
@@ -139,11 +139,13 @@ export const Settings = () => {
     resizeWindow(isPopoverOpen);
   }, [isPopoverOpen, resizeWindow]);
 
-  useWindowFocus({
-    onFocusLost: () => {
-      setIsPopoverOpen(false);
-    },
-  });
+  // Auto-close on focus loss disabled to prevent interruptions during form interactions
+  // Settings should be closed manually via the toggle button for better UX
+  // useWindowFocus({
+  //   onFocusLost: () => {
+  //     setIsPopoverOpen(false);
+  //   },
+  // });
 
   return (
     <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
