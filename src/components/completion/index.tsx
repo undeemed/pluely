@@ -1,12 +1,4 @@
-import {
-  MicIcon,
-  PaperclipIcon,
-  Loader2,
-  XIcon,
-  CopyIcon,
-  MessageCircle,
-  X,
-} from "lucide-react";
+import { MicIcon, PaperclipIcon, Loader2, XIcon, CopyIcon } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -46,6 +38,8 @@ export const Completion = () => {
     currentConversationId,
     conversationHistory,
     startNewConversation,
+    messageHistoryOpen,
+    setMessageHistoryOpen,
   } = useCompletion();
 
   const { resizeWindow } = useWindowResize();
@@ -76,8 +70,8 @@ export const Completion = () => {
   const isPopoverOpen = isLoading || response !== "" || error !== null;
 
   useEffect(() => {
-    resizeWindow(isPopoverOpen || micOpen);
-  }, [isPopoverOpen, micOpen, resizeWindow]);
+    resizeWindow(isPopoverOpen || micOpen || messageHistoryOpen);
+  }, [isPopoverOpen, micOpen, messageHistoryOpen, resizeWindow]);
 
   useWindowFocus({
     onFocusLost: () => {
@@ -161,17 +155,13 @@ export const Completion = () => {
                 conversationHistory.length > 0 &&
                 !isLoading && (
                   <div className="absolute select-none right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                    <div
-                      className="cursor-pointer flex items-center gap-1 rounded-xl px-2 py-1 transition-colors bg-muted/50 border border-primary/20 hover:border-primary/60"
-                      title={`${conversationHistory.length} messages in this conversation, clear conversation`}
-                      onClick={startNewConversation}
-                    >
-                      <MessageCircle className="h-4 w-4 text-primary" />
-                      <span className="text-sm text-primary font-medium">
-                        {conversationHistory.length}
-                      </span>
-                      <X className="h-3 w-3" />
-                    </div>
+                    <MessageHistory
+                      conversationHistory={conversationHistory}
+                      currentConversationId={currentConversationId}
+                      onStartNewConversation={startNewConversation}
+                      messageHistoryOpen={messageHistoryOpen}
+                      setMessageHistoryOpen={setMessageHistoryOpen}
+                    />
                   </div>
                 )}
 
@@ -194,11 +184,6 @@ export const Completion = () => {
             <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
               <h3 className="font-semibold text-sm">AI Response</h3>
               <div className="flex items-center gap-2">
-                <MessageHistory
-                  conversationHistory={conversationHistory}
-                  currentConversationId={currentConversationId}
-                  onStartNewConversation={startNewConversation}
-                />
                 <Button
                   size="icon"
                   variant="ghost"
