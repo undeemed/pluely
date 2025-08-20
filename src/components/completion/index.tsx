@@ -44,6 +44,7 @@ export const Completion = () => {
 
   const { resizeWindow } = useWindowResize();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -73,14 +74,25 @@ export const Completion = () => {
     resizeWindow(isPopoverOpen || micOpen || messageHistoryOpen);
   }, [isPopoverOpen, micOpen, messageHistoryOpen, resizeWindow]);
 
+  // Auto scroll to bottom when response updates
+  useEffect(() => {
+    if (response && scrollAreaRef.current) {
+      const scrollElement = scrollAreaRef.current.querySelector(
+        "[data-radix-scroll-area-viewport]"
+      );
+      if (scrollElement) {
+        scrollElement.scrollTo({
+          top: scrollElement.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [response]);
+
   useWindowFocus({
     onFocusLost: () => {
-      if (!isLoading && !isPopoverOpen) {
-        reset();
-      }
-      if (micOpen) {
-        setMicOpen(false);
-      }
+      setMicOpen(false);
+      setMessageHistoryOpen(false);
     },
   });
 
@@ -145,7 +157,7 @@ export const Completion = () => {
                 disabled={isLoading}
                 className={`${
                   currentConversationId && conversationHistory.length > 0
-                    ? "pr-24"
+                    ? "pr-14"
                     : "pr-12"
                 }`}
               />
@@ -182,8 +194,8 @@ export const Completion = () => {
             sideOffset={8}
           >
             <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
-              <h3 className="font-semibold text-sm">AI Response</h3>
-              <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-sm select-none">AI Response</h3>
+              <div className="flex items-center gap-2 select-none">
                 <Button
                   size="icon"
                   variant="ghost"
@@ -214,7 +226,7 @@ export const Completion = () => {
               </div>
             </div>
 
-            <ScrollArea className="h-[calc(100vh-7rem)]">
+            <ScrollArea ref={scrollAreaRef} className="h-[calc(100vh-7rem)]">
               <div className="p-4">
                 {error && (
                   <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded text-sm text-destructive">
@@ -229,7 +241,7 @@ export const Completion = () => {
                 )}
 
                 {isLoading && (
-                  <div className="flex items-center gap-2 mt-4 text-muted-foreground animate-pulse">
+                  <div className="flex items-center gap-2 mt-4 text-muted-foreground animate-pulse select-none">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span className="text-sm">Generating response...</span>
                   </div>
