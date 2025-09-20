@@ -13,6 +13,7 @@ export const STORAGE_KEYS = {
   SYSTEM_AUDIO_QUICK_ACTIONS: "system_audio_quick_actions",
   CUSTOMIZABLE: "customizable",
   PLUELY_API_ENABLED: "pluely_api_enabled",
+  HOTKEY_SETTINGS: "hotkey_settings",
 } as const;
 
 // Max number of files that can be attached to a message

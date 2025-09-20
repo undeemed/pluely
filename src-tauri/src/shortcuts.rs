@@ -189,6 +189,71 @@ pub fn get_shortcuts() -> serde_json::Value {
     })
 }
 
+/// Tauri command to update shortcuts dynamically
+#[tauri::command]
+pub fn update_shortcuts<R: Runtime>(
+    app: AppHandle<R>,
+    shortcuts: serde_json::Value,
+) -> Result<(), String> {
+    let toggle_str = shortcuts["toggle"].as_str().unwrap_or(DEFAULT_TOGGLE_SHORTCUT);
+    let audio_str = shortcuts["audio"].as_str().unwrap_or(DEFAULT_AUDIO_SHORTCUT);
+    let screenshot_str = shortcuts["screenshot"].as_str().unwrap_or(DEFAULT_SCREENSHOT_SHORTCUT);
+    let system_audio_str = shortcuts["systemAudio"].as_str().unwrap_or(DEFAULT_SYSTEM_AUDIO_SHORTCUT);
+
+    // Parse shortcuts
+    let toggle_shortcut = toggle_str.parse::<Shortcut>()
+        .map_err(|e| format!("Failed to parse toggle shortcut: {}", e))?;
+    let audio_shortcut = audio_str.parse::<Shortcut>()
+        .map_err(|e| format!("Failed to parse audio shortcut: {}", e))?;
+    let screenshot_shortcut = screenshot_str.parse::<Shortcut>()
+        .map_err(|e| format!("Failed to parse screenshot shortcut: {}", e))?;
+    let system_audio_shortcut = system_audio_str.parse::<Shortcut>()
+        .map_err(|e| format!("Failed to parse system audio shortcut: {}", e))?;
+
+    // Unregister old shortcuts
+    let _ = app.global_shortcut().unregister_all();
+
+    // Register new shortcuts
+    app.global_shortcut().on_shortcut(toggle_shortcut, move |app, _shortcut, event| {
+        if event.state() == ShortcutState::Pressed {
+            handle_toggle_window(&app);
+        }
+    }).map_err(|e| format!("Failed to register toggle shortcut: {}", e))?;
+
+    let app_handle = app.clone();
+    app.global_shortcut().on_shortcut(audio_shortcut, move |_app, _shortcut, event| {
+        if event.state() == ShortcutState::Pressed {
+            handle_audio_shortcut(&app_handle);
+        }
+    }).map_err(|e| format!("Failed to register audio shortcut: {}", e))?;
+
+    let app_handle = app.clone();
+    app.global_shortcut().on_shortcut(screenshot_shortcut, move |_app, _shortcut, event| {
+        if event.state() == ShortcutState::Pressed {
+            handle_screenshot_shortcut(&app_handle);
+        }
+    }).map_err(|e| format!("Failed to register screenshot shortcut: {}", e))?;
+
+    let app_handle = app.clone();
+    app.global_shortcut().on_shortcut(system_audio_shortcut, move |_app, _shortcut, event| {
+        if event.state() == ShortcutState::Pressed {
+            handle_system_audio_shortcut(&app_handle);
+        }
+    }).map_err(|e| format!("Failed to register system audio shortcut: {}", e))?;
+
+    // Register all shortcuts
+    app.global_shortcut().register(toggle_shortcut)
+        .map_err(|e| format!("Failed to register toggle shortcut: {}", e))?;
+    app.global_shortcut().register(audio_shortcut)
+        .map_err(|e| format!("Failed to register audio shortcut: {}", e))?;
+    app.global_shortcut().register(screenshot_shortcut)
+        .map_err(|e| format!("Failed to register screenshot shortcut: {}", e))?;
+    app.global_shortcut().register(system_audio_shortcut)
+        .map_err(|e| format!("Failed to register system audio shortcut: {}", e))?;
+
+    Ok(())
+}
+
 /// Tauri command to check if shortcuts are registered
 #[tauri::command]
 pub fn check_shortcuts_registered<R: Runtime>(app: AppHandle<R>) -> Result<bool, String> {

@@ -84,6 +84,7 @@ pub fn run() {
             set_window_height,
             capture_to_base64,
             shortcuts::get_shortcuts,
+            shortcuts::update_shortcuts,
             shortcuts::check_shortcuts_registered,
             shortcuts::set_app_icon_visibility,
             shortcuts::set_always_on_top,
