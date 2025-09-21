@@ -7,6 +7,7 @@ interface Shortcuts {
   audio: string;
   screenshot: string;
   systemAudio: string;
+  alwaysOnTop: string;
 }
 
 // Global singleton to prevent multiple event listeners in StrictMode
@@ -15,6 +16,7 @@ let globalEventListeners: {
   audio?: UnlistenFn;
   screenshot?: UnlistenFn;
   systemAudio?: UnlistenFn;
+  alwaysOnTop?: UnlistenFn;
 } = {};
 
 // Global debounce for screenshot events to prevent duplicates
@@ -25,6 +27,7 @@ export const useGlobalShortcuts = () => {
   const audioCallbackRef = useRef<(() => void) | null>(null);
   const screenshotCallbackRef = useRef<(() => void) | null>(null);
   const systemAudioCallbackRef = useRef<(() => void) | null>(null);
+  const alwaysOnTopCallbackRef = useRef<(() => void) | null>(null);
 
   const checkShortcutsRegistered = useCallback(async (): Promise<boolean> => {
     try {
@@ -66,6 +69,11 @@ export const useGlobalShortcuts = () => {
     systemAudioCallbackRef.current = callback;
   }, []);
 
+  // Register always on top callback
+  const registerAlwaysOnTopCallback = useCallback((callback: () => void) => {
+    alwaysOnTopCallbackRef.current = callback;
+  }, []);
+
   // Setup event listeners using global singleton
   useEffect(() => {
     const setupEventListeners = async () => {
@@ -97,6 +105,13 @@ export const useGlobalShortcuts = () => {
             globalEventListeners.systemAudio();
           } catch (error) {
             console.warn("Error cleaning up system audio listener:", error);
+          }
+        }
+        if (globalEventListeners.alwaysOnTop) {
+          try {
+            globalEventListeners.alwaysOnTop();
+          } catch (error) {
+            console.warn("Error cleaning up always on top listener:", error);
           }
         }
 
@@ -144,6 +159,14 @@ export const useGlobalShortcuts = () => {
           }
         });
         globalEventListeners.systemAudio = unlistenSystemAudio;
+
+        // Listen for always on top toggle event
+        const unlistenAlwaysOnTop = await listen("toggle-always-on-top", () => {
+          if (alwaysOnTopCallbackRef.current) {
+            alwaysOnTopCallbackRef.current();
+          }
+        });
+        globalEventListeners.alwaysOnTop = unlistenAlwaysOnTop;
       } catch (error) {
         console.error("Failed to setup event listeners:", error);
       }
@@ -159,5 +182,6 @@ export const useGlobalShortcuts = () => {
     registerAudioCallback,
     registerScreenshotCallback,
     registerSystemAudioCallback,
+    registerAlwaysOnTopCallback,
   };
 };

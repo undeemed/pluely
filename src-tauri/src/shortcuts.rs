@@ -26,12 +26,18 @@ const DEFAULT_SYSTEM_AUDIO_SHORTCUT: &str = "cmd+shift+m";
 #[cfg(not(target_os = "macos"))]
 const DEFAULT_SYSTEM_AUDIO_SHORTCUT: &str = "ctrl+shift+m";
 
+#[cfg(target_os = "macos")]
+const DEFAULT_ALWAYS_ON_TOP_SHORTCUT: &str = "cmd+shift+t";
+#[cfg(not(target_os = "macos"))]
+const DEFAULT_ALWAYS_ON_TOP_SHORTCUT: &str = "ctrl+shift+t";
+
 /// Initialize global shortcuts for the application
 pub fn setup_global_shortcuts<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error>> {
     let toggle_shortcut = DEFAULT_TOGGLE_SHORTCUT.parse::<Shortcut>()?;
     let audio_shortcut = DEFAULT_AUDIO_SHORTCUT.parse::<Shortcut>()?;
     let screenshot_shortcut = DEFAULT_SCREENSHOT_SHORTCUT.parse::<Shortcut>()?;
     let system_audio_shortcut = DEFAULT_SYSTEM_AUDIO_SHORTCUT.parse::<Shortcut>()?;
+    let always_on_top_shortcut = DEFAULT_ALWAYS_ON_TOP_SHORTCUT.parse::<Shortcut>()?;
 
      
     // Register global shortcuts
@@ -62,6 +68,13 @@ pub fn setup_global_shortcuts<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<
         }
     }).map_err(|e| format!("Failed to register system audio shortcut: {}", e))?;
 
+    let app_handle = app.clone();
+    app.global_shortcut().on_shortcut(always_on_top_shortcut, move |_app, _shortcut, event| {
+        if event.state() == ShortcutState::Pressed {
+            handle_always_on_top_shortcut(&app_handle);
+        }
+    }).map_err(|e| format!("Failed to register always on top shortcut: {}", e))?;
+
     // Register all shortcuts
     app.global_shortcut().register(toggle_shortcut)
         .map_err(|e| format!("Failed to register toggle shortcut: {}", e))?;
@@ -71,6 +84,8 @@ pub fn setup_global_shortcuts<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<
         .map_err(|e| format!("Failed to register screenshot shortcut: {}", e))?;
     app.global_shortcut().register(system_audio_shortcut)
         .map_err(|e| format!("Failed to register system audio shortcut: {}", e))?;
+    app.global_shortcut().register(always_on_top_shortcut)
+        .map_err(|e| format!("Failed to register always on top shortcut: {}", e))?;
     
     Ok(())
 }
@@ -178,6 +193,27 @@ fn handle_system_audio_shortcut<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
+/// Handle always on top shortcut
+fn handle_always_on_top_shortcut<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("main") {
+        // Ensure window is visible
+        if let Ok(false) = window.is_visible() {
+            if let Err(e) = window.show() {
+                eprintln!("Failed to show window: {}", e);
+                return;
+            }
+            if let Err(e) = window.set_focus() {
+                eprintln!("Failed to focus window: {}", e);
+            }
+        }
+        
+        // Emit event to toggle always on top - frontend will determine current state
+        if let Err(e) = window.emit("toggle-always-on-top", json!({})) {
+            eprintln!("Failed to emit always on top event: {}", e);
+        }
+    }
+}
+
 /// Tauri command to get current shortcuts
 #[tauri::command]
 pub fn get_shortcuts() -> serde_json::Value {
@@ -185,7 +221,8 @@ pub fn get_shortcuts() -> serde_json::Value {
         "toggle": DEFAULT_TOGGLE_SHORTCUT,
         "audio": DEFAULT_AUDIO_SHORTCUT,
         "screenshot": DEFAULT_SCREENSHOT_SHORTCUT,
-        "systemAudio": DEFAULT_SYSTEM_AUDIO_SHORTCUT
+        "systemAudio": DEFAULT_SYSTEM_AUDIO_SHORTCUT,
+        "alwaysOnTop": DEFAULT_ALWAYS_ON_TOP_SHORTCUT
     })
 }
 
@@ -199,6 +236,7 @@ pub fn update_shortcuts<R: Runtime>(
     let audio_str = shortcuts["audio"].as_str().unwrap_or(DEFAULT_AUDIO_SHORTCUT);
     let screenshot_str = shortcuts["screenshot"].as_str().unwrap_or(DEFAULT_SCREENSHOT_SHORTCUT);
     let system_audio_str = shortcuts["systemAudio"].as_str().unwrap_or(DEFAULT_SYSTEM_AUDIO_SHORTCUT);
+    let always_on_top_str = shortcuts["alwaysOnTop"].as_str().unwrap_or(DEFAULT_ALWAYS_ON_TOP_SHORTCUT);
 
     // Parse shortcuts
     let toggle_shortcut = toggle_str.parse::<Shortcut>()
@@ -209,6 +247,8 @@ pub fn update_shortcuts<R: Runtime>(
         .map_err(|e| format!("Failed to parse screenshot shortcut: {}", e))?;
     let system_audio_shortcut = system_audio_str.parse::<Shortcut>()
         .map_err(|e| format!("Failed to parse system audio shortcut: {}", e))?;
+    let always_on_top_shortcut = always_on_top_str.parse::<Shortcut>()
+        .map_err(|e| format!("Failed to parse always on top shortcut: {}", e))?;
 
     // Unregister old shortcuts
     let _ = app.global_shortcut().unregister_all();
@@ -241,6 +281,13 @@ pub fn update_shortcuts<R: Runtime>(
         }
     }).map_err(|e| format!("Failed to register system audio shortcut: {}", e))?;
 
+    let app_handle = app.clone();
+    app.global_shortcut().on_shortcut(always_on_top_shortcut, move |_app, _shortcut, event| {
+        if event.state() == ShortcutState::Pressed {
+            handle_always_on_top_shortcut(&app_handle);
+        }
+    }).map_err(|e| format!("Failed to register always on top shortcut: {}", e))?;
+
     // Register all shortcuts
     app.global_shortcut().register(toggle_shortcut)
         .map_err(|e| format!("Failed to register toggle shortcut: {}", e))?;
@@ -250,6 +297,8 @@ pub fn update_shortcuts<R: Runtime>(
         .map_err(|e| format!("Failed to register screenshot shortcut: {}", e))?;
     app.global_shortcut().register(system_audio_shortcut)
         .map_err(|e| format!("Failed to register system audio shortcut: {}", e))?;
+    app.global_shortcut().register(always_on_top_shortcut)
+        .map_err(|e| format!("Failed to register always on top shortcut: {}", e))?;
 
     Ok(())
 }
@@ -262,6 +311,7 @@ pub fn check_shortcuts_registered<R: Runtime>(app: AppHandle<R>) -> Result<bool,
         DEFAULT_AUDIO_SHORTCUT,
         DEFAULT_SCREENSHOT_SHORTCUT,
         DEFAULT_SYSTEM_AUDIO_SHORTCUT,
+        DEFAULT_ALWAYS_ON_TOP_SHORTCUT,
     ];
 
     for shortcut_str in shortcuts {

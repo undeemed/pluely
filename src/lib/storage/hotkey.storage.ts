@@ -5,6 +5,7 @@ export interface HotkeySettings {
   audio: string;
   screenshot: string;
   systemAudio: string;
+  alwaysOnTop: string;
 }
 
 export const DEFAULT_HOTKEY_SETTINGS: HotkeySettings = {
@@ -12,6 +13,7 @@ export const DEFAULT_HOTKEY_SETTINGS: HotkeySettings = {
   audio: "cmd+shift+a",
   screenshot: "cmd+shift+s", 
   systemAudio: "cmd+shift+m",
+  alwaysOnTop: "cmd+shift+t",
 };
 
 /**
@@ -25,6 +27,7 @@ export const getPlatformDefaultHotkeys = (): HotkeySettings => {
       audio: "cmd+shift+a",
       screenshot: "cmd+shift+s",
       systemAudio: "cmd+shift+m",
+      alwaysOnTop: "cmd+shift+t",
     };
   } else {
     return {
@@ -32,6 +35,7 @@ export const getPlatformDefaultHotkeys = (): HotkeySettings => {
       audio: "ctrl+shift+a",
       screenshot: "ctrl+shift+s",
       systemAudio: "ctrl+shift+m",
+      alwaysOnTop: "ctrl+shift+t",
     };
   }
 };
@@ -43,7 +47,16 @@ export const getHotkeySettings = (): HotkeySettings => {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.HOTKEY_SETTINGS);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      // Ensure all required fields exist, use defaults for missing ones
+      const defaults = getPlatformDefaultHotkeys();
+      return {
+        toggle: parsed.toggle || defaults.toggle,
+        audio: parsed.audio || defaults.audio,
+        screenshot: parsed.screenshot || defaults.screenshot,
+        systemAudio: parsed.systemAudio || defaults.systemAudio,
+        alwaysOnTop: parsed.alwaysOnTop || defaults.alwaysOnTop,
+      };
     }
     return getPlatformDefaultHotkeys();
   } catch (error) {
@@ -119,7 +132,8 @@ export const getConflictMessage = (conflictingKey: keyof HotkeySettings): string
     toggle: "Toggle Window",
     audio: "Voice Input", 
     screenshot: "Screenshot",
-    systemAudio: "System Audio"
+    systemAudio: "System Audio",
+    alwaysOnTop: "Always On Top"
   };
   return `This hotkey is already used by ${keyNames[conflictingKey]}`;
 };

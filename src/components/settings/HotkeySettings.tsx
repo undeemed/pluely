@@ -8,7 +8,7 @@ import {
   getConflictMessage,
   HotkeySettings as HotkeySettingsType
 } from "@/lib/storage";
-import { RotateCcw, Keyboard } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 interface HotkeySettingsProps {
   className?: string;
@@ -248,6 +248,11 @@ export const HotkeySettings = ({ className }: HotkeySettingsProps) => {
       key: "systemAudio" as keyof HotkeySettingsType,
       label: "System Audio",
       description: "Toggle system audio capture",
+    },
+    {
+      key: "alwaysOnTop" as keyof HotkeySettingsType,
+      label: "Always On Top",
+      description: "Toggle always on top mode",
     },
   ];
 

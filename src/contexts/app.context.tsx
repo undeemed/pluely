@@ -16,6 +16,7 @@ import { IContextType, ScreenshotConfig, TYPE_PROVIDER } from "@/types";
 import curl2Json from "@bany/curl-to-json";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { useGlobalShortcuts } from "@/hooks";
 import {
   ReactNode,
   createContext,
@@ -63,6 +64,7 @@ const AppContext = createContext<IContextType | undefined>(undefined);
 
 // Create the provider component
 export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const globalShortcuts = useGlobalShortcuts();
   const [systemPrompt, setSystemPrompt] = useState<string>(
     safeLocalStorage.getItem(STORAGE_KEYS.SYSTEM_PROMPT) ||
       DEFAULT_SYSTEM_PROMPT
@@ -351,6 +353,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       console.error("Failed to toggle always on top:", error);
     }
   };
+
+  // Register always on top hotkey callback
+  useEffect(() => {
+    globalShortcuts.registerAlwaysOnTopCallback(() => {
+      toggleAlwaysOnTop(!customizable.alwaysOnTop.isEnabled);
+    });
+  }, [globalShortcuts.registerAlwaysOnTopCallback, customizable.alwaysOnTop.isEnabled, toggleAlwaysOnTop]);
 
   const toggleTitlesVisibility = (isEnabled: boolean) => {
     const newState = updateTitlesVisibility(isEnabled);
